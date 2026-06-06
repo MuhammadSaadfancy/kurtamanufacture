@@ -1,0 +1,144 @@
+﻿@model IEnumerable<FashionPro.Models.ViewModels.FabricListVM>
+
+@{
+    ViewData["Title"] = "Fabric Records";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">
+                                <i class="fas fa-cut text-primary"></i> Fabric Records
+                            </h4>
+                            <p class="text-muted mb-0">All fabric purchase transactions</p>
+                        </div>
+                        <div>
+                            <a asp-action="Dashboard" class="btn btn-info me-2">Dashboard</a>
+                            <a asp-action="Create" class="btn btn-primary">Add Fabric</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            <label>From Date</label>
+                            <input type="date" name="fromDate" class="form-control" value="@ViewBag.FromDate" />
+                        </div>
+                        <div class="col-md-3">
+                            <label>To Date</label>
+                            <input type="date" name="toDate" class="form-control" value="@ViewBag.ToDate" />
+                        </div>
+                        <div class="col-md-3">
+                            <label>Supplier</label>
+                            <select name="partyId" class="form-select" asp-items="@ViewBag.Suppliers"></select>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-primary w-100">Filter</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">No fabric records found</div>
+    }
+    else
+    {
+        var supplierGroups = Model.GroupBy(x => x.PartyName);
+        decimal grandTotalAmount = 0;
+        decimal grandTotalPending = ViewBag.GrandTotalPending ?? 0;
+
+        foreach (var group in supplierGroups)
+        {
+            var totalAmount = group.Sum(x => x.Amount);
+            grandTotalAmount += totalAmount;
+
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-truck"></i> @group.Key
+                        <span class="badge bg-light text-dark float-end">
+                            Total: ₨ @totalAmount.ToString("N0")
+                        </span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Date</th>
+                                    <th>Variety</th>
+                                    <th>Quantity</th>
+                                    <th class="text-end">Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    int sr = 1;
+                                    foreach (var item in group)
+                                    {
+                                        <tr>
+                                            <td class="text-center">@sr</td>
+                                            <td>@item.DateDisplay</td>
+                                            <td>@item.Variety</td>
+                                            <td>@item.Quantity</td>
+                                            <td class="text-end">₨ @item.Amount.ToString("N0")</td>
+                                            <td class="text-nowrap">
+                                                <a asp-action="CreatePayment" asp-route-partyId="@item.PartyId" class="btn btn-sm btn-success">Pay</a>
+                                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                                            </td>
+                                        </tr>
+                                        sr++;
+                                    }
+                                }
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr class="fw-bold">
+                                    <td colspan="4" class="text-end">Total for @group.Key:</td>
+                                    <td class="text-end">₨ @totalAmount.ToString("N0")</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Grand Total -->
+        <div class="card shadow bg-dark text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-chart-line"></i> Grand Total</h5>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <h5>Total Amount: ₨ @grandTotalAmount.ToString("N0")</h5>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <h5>Total Pending: ₨ @grandTotalPending.ToString("N0")</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

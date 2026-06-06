@@ -1,0 +1,161 @@
+﻿@model FashionPro.Models.ViewModels.FabricDashboardVM
+
+@{
+    ViewData["Title"] = "Fabric Dashboard";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow bg-gradient-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">
+                                <i class="fas fa-cut"></i> Fabric Management
+                            </h4>
+                            <p class="mb-0 mt-1">Track fabric purchases and supplier payments</p>
+                        </div>
+                        <div>
+                            <a asp-action="Create" class="btn btn-light me-2">
+                                <i class="fas fa-plus"></i> Add Fabric
+                            </a>
+                            <a asp-action="CreatePayment" class="btn btn-warning">
+                                <i class="fas fa-money-bill"></i> Make Payment
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow border-left-primary">
+                <div class="card-body">
+                    <h6 class="text-muted">Total Fabric Amount</h6>
+                    <h3 class="text-primary">₨ @Model.TotalFabricAmount.ToString("N0")</h3>
+                    <small>@Model.TotalTransactions transactions</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow border-left-success">
+                <div class="card-body">
+                    <h6 class="text-muted">Total Paid</h6>
+                    <h3 class="text-success">₨ @Model.TotalPaid.ToString("N0")</h3>
+                    <small>To suppliers</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow border-left-danger">
+                <div class="card-body">
+                    <h6 class="text-muted">Pending Balance</h6>
+                    <h3 class="text-danger">₨ @Model.TotalBalance.ToString("N0")</h3>
+                    <small>Due to suppliers</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow border-left-info">
+                <div class="card-body">
+                    <h6 class="text-muted">Payment Rate</h6>
+                    <h3>
+                        @{
+                            var paymentRate = Model.TotalFabricAmount > 0 ? (Model.TotalPaid / Model.TotalFabricAmount) * 100 : 0;
+                        }
+                        @paymentRate.ToString("F1")%
+                    </h3>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" style="width: @paymentRate%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supplier Balances -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white">
+                    <i class="fas fa-truck"></i> Supplier Wise Balance
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Supplier Name</th>
+                                    <th class="text-end">Total Fabric</th>
+                                    <th class="text-end">Total Paid</th>
+                                    <th class="text-end">Balance</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.SupplierBalances.Any())
+                                {
+                                    <tr class="text-center">
+                                        <td colspan="6">No supplier records found</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    int sr = 1;
+                                    foreach (var supplier in Model.SupplierBalances)
+                                    {
+                                        <tr>
+                                            <td>@sr++</td>
+                                            <td><strong>@supplier.PartyName</strong></td>
+                                            <td class="text-end">₨ @supplier.TotalAmount.ToString("N0")</td>
+                                            <td class="text-end text-success">₨ @supplier.TotalPaid.ToString("N0")</td>
+                                            <td class="text-end @supplier.BalanceColor fw-bold">
+                                                ₨ @supplier.Balance.ToString("N0")
+                                            </td>
+                                            <td>
+                                                <a asp-action="Index" asp-route-partyId="@supplier.PartyId" class="btn btn-sm btn-info">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                               <a href="@Url.Action("Payments", "Fabric", new { partyId = supplier.PartyId })" class="btn btn-sm btn-info">
+    <i class="fas fa-history"></i> Payments
+</a>
+<a href="@Url.Action("CreatePayment", "Fabric", new { partyId = supplier.PartyId })" class="btn btn-sm btn-success">
+    <i class="fas fa-money-bill"></i> Pay
+</a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr class="fw-bold">
+                                    <td colspan="2" class="text-end">Total:</td>
+                                    <td class="text-end">₨ @Model.SupplierBalances.Sum(x => x.TotalAmount).ToString("N0")</td>
+                                    <td class="text-end">₨ @Model.SupplierBalances.Sum(x => x.TotalPaid).ToString("N0")</td>
+                                    <td class="text-end text-danger">₨ @Model.SupplierBalances.Sum(x => x.Balance).ToString("N0")</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-left-primary { border-left: 4px solid #4e73df; }
+    .border-left-success { border-left: 4px solid #1cc88a; }
+    .border-left-danger { border-left: 4px solid #e74a3b; }
+    .border-left-info { border-left: 4px solid #36b9cc; }
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    }
+</style>

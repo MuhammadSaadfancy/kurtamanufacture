@@ -1,0 +1,63 @@
+﻿@model FashionPro.Models.ProductionTransaction
+
+@{
+    ViewData["Title"] = "Delete Record";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-trash-alt"></i> Delete Record
+                    </h4>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.HasPayments == true)
+                    {
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            This record has @ViewBag.PaymentCount payment(s) totaling ₨ @ViewBag.TotalPaid.ToString("N0").
+                            <p class="mb-0 mt-2">Deleting will also remove all associated payments!</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i> Are you sure you want to delete this record?
+                            <p class="mb-0 mt-2">This action cannot be undone.</p>
+                        </div>
+                    }
+
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Record Details</h5>
+                            <table class="table table-bordered">
+                                <tr><th>Date</th><td>@Model.Date.ToString("dd-MMM-yyyy")</td></tr>
+                                <tr><th>Module</th><td>@Model.ModuleType @(!string.IsNullOrEmpty(Model.SubType) ? $"- {Model.SubType}" : "")</td></tr>
+                                <tr><th>Worker</th><td>@Model.Party?.PartyName</td></tr>
+                                <tr><th>Item</th><td>@Model.ItemName</td></tr>
+                                <tr><th>Amount</th><td class="text-danger fw-bold">₨ @Model.Amount.ToString("N0")</td></tr>
+                                <tr><th>Balance</th><td class="text-danger fw-bold">₨ @Model.Balance.ToString("N0")</td></tr>
+                                <tr><th>Status</th><td>@Model.Status</td></tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <form asp-action="Delete" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="@ViewBag.ActiveTab" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Delete Permanently
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

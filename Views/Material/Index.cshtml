@@ -1,0 +1,160 @@
+﻿@model IEnumerable<FashionPro.Models.ViewModels.MaterialListVM>
+
+@{
+    ViewData["Title"] = "Material Records";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">
+                                <i class="fas fa-boxes text-info"></i> Material Records
+                            </h4>
+                            <p class="text-muted mb-0">Dhaga, button, collar, and other materials</p>
+                        </div>
+                        <div>
+                            <a asp-action="Dashboard" class="btn btn-info me-2">
+                                <i class="fas fa-chart-line"></i> Dashboard
+                            </a>
+                            <a asp-action="Create" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Add Material
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">From Date</label>
+                            <input type="date" name="fromDate" class="form-control" value="@ViewBag.FromDate" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">To Date</label>
+                            <input type="date" name="toDate" class="form-control" value="@ViewBag.ToDate" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Search</label>
+                            <input type="text" name="searchTerm" class="form-control" placeholder="Material name..." value="@ViewBag.SearchTerm" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search"></i> Filter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h6>Total Records</h6>
+                    <h3>@ViewBag.TotalRecords</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h6>Total Cost</h6>
+                    <h3>₨ @ViewBag.TotalAmount.ToString("N0")</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Date</th>
+                                    <th>Material Name</th>
+                                    <th>Quantity</th>
+                                    <th class="text-end">Amount</th>
+                                    <th>Notes</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.Any())
+                                {
+                                    <tr class="text-center">
+                                        <td colspan="7">No material records found</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    int sr = (ViewBag.CurrentPage - 1) * 15 + 1;
+                                    foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>@sr++</td>
+                                            <td>@item.DateDisplay</td>
+                                            <td><strong>@item.MaterialName</strong></td>
+                                            <td>@item.QuantityDisplay</td>
+                                            <td class="text-end text-primary fw-bold">₨ @item.Amount.ToString("N0")</td>
+                                            <td>@(item.ShortNotes ?? "-")</td>
+                                            <td>
+                                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr class="fw-bold">
+                                    <td colspan="4" class="text-end">Total:</td>
+                                    <td class="text-end">₨ @Model.Sum(x => x.Amount).ToString("N0")</td>
+                                    <td colspan="2"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    @if (ViewBag.TotalPages > 1)
+                    {
+                        <nav>
+                            <ul class="pagination justify-content-center">
+                                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                                {
+                                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                        <a class="page-link" href="@Url.Action("Index", new { page = i, fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, searchTerm = ViewBag.SearchTerm })">@i</a>
+                                    </li>
+                                }
+                            </ul>
+                        </nav>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

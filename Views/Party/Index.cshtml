@@ -1,0 +1,221 @@
+﻿@model IEnumerable<FashionPro.Models.ViewModels.PartyListVM>
+
+@{
+    ViewData["Title"] = "Parties Management";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">
+                                <i class="fas fa-users text-primary"></i> Parties Management
+                            </h4>
+                            <p class="text-muted mb-0 mt-1">Manage suppliers, workers, and customers</p>
+                        </div>
+                        <a asp-action="Create" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add New Party
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Search</label>
+                            <input type="text" name="searchTerm" class="form-control"
+                                   placeholder="Name or Phone..." value="@ViewBag.SearchTerm" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Party Type</label>
+                            <select name="partyType" class="form-select">
+                                <option value="">All Types</option>
+                                @foreach (var type in ViewBag.PartyTypes)
+                                {
+                                    if (ViewBag.PartyType == type.Value)
+                                    {
+                                        <option value="@type.Value" selected>@type.Text</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@type.Value">@type.Text</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search"></i> Filter
+                            </button>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <a asp-action="Index" class="btn btn-secondary w-100">
+                                <i class="fas fa-sync"></i> Reset
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parties Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-list"></i> Party List</span>
+                        <span class="badge bg-primary">Total: @ViewBag.TotalRecords</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Party Name</th>
+                                    <th>Type</th>
+                                    <th>Phone</th>
+                                    <th>Address</th>
+                                    <th>Balance</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.Any())
+                                {
+                                    <tr>
+                                        <td colspan="9" class="text-center text-muted py-4">
+                                            <i class="fas fa-inbox fa-2x"></i>
+                                            <p class="mt-2">No parties found. Click "Add New Party" to create one.</p>
+                                        </td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    int sr = (ViewBag.CurrentPage - 1) * 15 + 1;
+                                    foreach (var party in Model)
+                                    {
+                                        <tr class="@(!party.IsActive ? "table-secondary" : "")">
+                                            <td>@sr</td>
+                                            <td>
+                                                <strong>@party.PartyName</strong>
+                                                @if (!party.IsActive)
+                                                {
+                                                    <span class="badge bg-secondary ms-1">Inactive</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @{
+                                                    var typeDisplay = party.PartyType switch
+                                                    {
+                                                        "Supplier" => "Supplier",
+                                                        "CMTWorker" => "CMT Worker",
+                                                        "CuttingMaster" => "Cutting Master",
+                                                        "Designer" => "Designer",
+                                                        "ButtonWorker" => "Button Worker",
+                                                        "PressWorker" => "Press Worker",
+                                                        "Customer" => "Customer",
+                                                        _ => party.PartyType
+                                                    };
+                                                }
+                                                <span class="badge bg-info">@typeDisplay</span>
+                                            </td>
+                                            <td>@(party.Phone ?? "-")</td>
+                                            <td>@(party.Address != null && party.Address.Length > 30 ? party.Address.Substring(0, 30) + "..." : party.Address ?? "-")</td>
+                                            <td class="@party.BalanceColor fw-bold">
+                                                @party.BalancePrefix @Math.Abs(party.CurrentBalance).ToString("N0")
+                                            </td>
+                                            <td>
+                                                @if (party.IsActive)
+                                                {
+                                                    <span class="badge bg-success">Active</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Inactive</span>
+                                                }
+                                            </td>
+                                            <td>@party.CreatedAt.ToString("dd-MMM-yyyy")</td>
+                                            <td>
+                                                <a asp-action="Details" asp-route-id="@party.PartyId" class="btn btn-sm btn-info" title="Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a asp-action="Edit" asp-route-id="@party.PartyId" class="btn btn-sm btn-warning" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a asp-action="Delete" asp-route-id="@party.PartyId" class="btn btn-sm btn-danger" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        sr++;
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    @if (ViewBag.TotalPages > 1)
+                    {
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center">
+                                @if (ViewBag.CurrentPage > 1)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.CurrentPage - 1, searchTerm = ViewBag.SearchTerm, partyType = ViewBag.PartyType })">
+                                            Previous
+                                        </a>
+                                    </li>
+                                }
+                                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                                {
+                                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                        <a class="page-link" href="@Url.Action("Index", new { page = i, searchTerm = ViewBag.SearchTerm, partyType = ViewBag.PartyType })">@i</a>
+                                    </li>
+                                }
+                                @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.CurrentPage + 1, searchTerm = ViewBag.SearchTerm, partyType = ViewBag.PartyType })">
+                                            Next
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </nav>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Auto-hide alerts
+            setTimeout(function() {
+                $('.alert').fadeOut('slow');
+            }, 3000);
+        });
+    </script>
+}

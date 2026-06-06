@@ -1,0 +1,147 @@
+﻿@model FashionPro.Models.ViewModels.MaterialDashboardVM
+
+@{
+    ViewData["Title"] = "Material Dashboard";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow bg-gradient-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">
+                                <i class="fas fa-boxes"></i> Material Management
+                            </h4>
+                            <p class="mb-0 mt-1">Track dhaga, button, collar, and other materials</p>
+                        </div>
+                        <div>
+                            <a asp-action="Create" class="btn btn-light me-2">
+                                <i class="fas fa-plus"></i> Add Material
+                            </a>
+                            <a asp-action="Report" class="btn btn-outline-light">
+                                <i class="fas fa-chart-line"></i> Report
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow border-left-primary">
+                <div class="card-body">
+                    <h6 class="text-muted">Total Material Cost</h6>
+                    <h3 class="text-primary">₨ @Model.TotalAmount.ToString("N0")</h3>
+                    <small>@Model.TotalTransactions transactions</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow border-left-success">
+                <div class="card-body">
+                    <h6 class="text-muted">Today's Purchase</h6>
+                    <h3 class="text-success">₨ @Model.TodayAmount.ToString("N0")</h3>
+                    <small>@DateTime.Now.ToString("dd-MMM-yyyy")</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow border-left-info">
+                <div class="card-body">
+                    <h6 class="text-muted">This Month</h6>
+                    <h3 class="text-info">₨ @Model.MonthAmount.ToString("N0")</h3>
+                    <small>@DateTime.Now.ToString("MMMM yyyy")</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow border-left-warning">
+                <div class="card-body">
+                    <h6 class="text-muted">Average per Transaction</h6>
+                    <h3 class="text-warning">
+                        ₨ @(Model.TotalTransactions > 0 ? (Model.TotalAmount / Model.TotalTransactions).ToString("N0") : "0")
+                    </h3>
+                    <small>Per purchase</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Materials -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white">
+                    <i class="fas fa-chart-bar"></i> Top Materials by Cost
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Material Name</th>
+                                    <th class="text-end">Total Cost</th>
+                                    <th class="text-center">Purchases</th>
+                                    <th class="text-center">% of Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.TopMaterials.Any())
+                                {
+                                    <tr class="text-center">
+                                        <td colspan="5">No material records found</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    int sr = 1;
+                                    foreach (var item in Model.TopMaterials)
+                                    {
+                                        var percentage = Model.TotalAmount > 0 ? (item.TotalAmount / Model.TotalAmount) * 100 : 0;
+                                        <tr>
+                                            <td>@sr++</td>
+                                            <td><strong>@item.MaterialName</strong></td>
+                                            <td class="text-end text-primary fw-bold">₨ @item.TotalAmount.ToString("N0")</td>
+                                            <td class="text-center">@item.Count times</td>
+                                            <td class="text-center">
+                                                <div class="progress">
+                                                    <div class="progress-bar bg-primary" style="width: @percentage%">
+                                                        @percentage.ToString("F1")%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr class="fw-bold">
+                                    <td colspan="2" class="text-end">Total:</td>
+                                    <td class="text-end">₨ @Model.TotalAmount.ToString("N0")</td>
+                                    <td class="text-center">@Model.TotalTransactions</td>
+                                    <td class="text-center">100%</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-left-primary { border-left: 4px solid #4e73df; }
+    .border-left-success { border-left: 4px solid #1cc88a; }
+    .border-left-info { border-left: 4px solid #36b9cc; }
+    .border-left-warning { border-left: 4px solid #f6c23e; }
+    .bg-gradient-info {
+        background: linear-gradient(135deg, #36b9cc 0%, #258391 100%);
+    }
+</style>

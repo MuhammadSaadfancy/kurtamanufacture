@@ -1,0 +1,90 @@
+﻿@model FashionPro.Models.ViewModels.ProductionDashboardVM
+
+@{
+    ViewData["Title"] = "Production Dashboard";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow bg-gradient-primary text-white">
+                <div class="card-body">
+                    <h4 class="mb-0"><i class="fas fa-industry"></i> Production Dashboard</h4>
+                    <p class="mb-0">Track all production activities</p>
+                    <a asp-action="Index" asp-controller="Production" class="btn btn-light me-2">
+                        <i class="fas fa-list"></i> View All Records
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="card shadow text-center">
+                <div class="card-body">
+                    <i class="fas fa-palette fa-2x text-primary"></i>
+                    <h5 class="mt-2">Design</h5>
+                    <h6>₨ @Model.TotalDesignAmount.ToString("N0")</h6>
+                    <a asp-action="Design" class="btn btn-sm btn-primary">View</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card shadow text-center">
+                <div class="card-body">
+                    <i class="fas fa-cut fa-2x text-warning"></i>
+                    <h5 class="mt-2">Cutting</h5>
+                    <h6>₨ @Model.TotalCuttingAmount.ToString("N0")</h6>
+                    <a asp-action="Cutting" class="btn btn-sm btn-warning">View</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card shadow text-center">
+                <div class="card-body">
+                    <i class="fas fa-tshirt fa-2x text-success"></i>
+                    <h5 class="mt-2">CMT</h5>
+                    <h6>₨ @Model.TotalCMTAmount.ToString("N0")</h6>
+                    <a asp-action="CMT" class="btn btn-sm btn-success">View</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card shadow text-center">
+                <div class="card-body">
+                    <i class="fas fa-circle-dot fa-2x text-info"></i>
+                    <h5 class="mt-2">Buttons</h5>
+                    <h6>₨ @Model.TotalButtonAmount.ToString("N0")</h6>
+                    <a asp-action="KurtaButton" class="btn btn-sm btn-info">View</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card shadow text-center">
+                <div class="card-body">
+                    <i class="fas fa-box fa-2x text-danger"></i>
+                    <h5 class="mt-2">Ending Work</h5>
+                    <h6>₨ @Model.TotalEndingAmount.ToString("N0")</h6>
+                    <a asp-action="EndingWork" class="btn btn-sm btn-danger">View</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card shadow text-center bg-dark text-white">
+                <div class="card-body">
+                    <i class="fas fa-chart-line fa-2x"></i>
+                    <h5 class="mt-2">Total Pending</h5>
+                    <h6>₨ @Model.TotalBalance.ToString("N0")</h6>
+                    <a asp-action="Payments" class="btn btn-sm btn-light">Payments</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    }
+</style>

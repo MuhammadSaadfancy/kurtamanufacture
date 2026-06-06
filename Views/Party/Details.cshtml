@@ -1,0 +1,207 @@
+﻿@{
+    ViewData["Title"] = "Party Details";
+    var party = ViewBag.Party as FashionPro.Models.Party;
+    var fabrics = ViewBag.Fabrics as IEnumerable<FashionPro.Models.Fabric>;
+    var productions = ViewBag.Productions as IEnumerable<FashionPro.Models.ProductionTransaction>;
+    var senders = ViewBag.Senders as IEnumerable<FashionPro.Models.Sender>;
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">
+                                <i class="fas fa-user-circle text-primary"></i> @party.PartyName
+                            </h4>
+                            <p class="text-muted mb-0">@party.PartyType Details & Transactions</p>
+                        </div>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@party.PartyId" class="btn btn-warning">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Party Info -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow h-100">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-info-circle"></i> Party Information
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th style="width: 120px;">Full Name:</th>
+                            <td>@party.PartyName</td>
+                        </tr>
+                        <tr>
+                            <th>Party Type:</th>
+                            <td><span class="badge bg-info">@party.PartyType</span></td>
+                        </tr>
+                        <tr>
+                            <th>Phone:</th>
+                            <td>@(party.Phone ?? "Not provided")</td>
+                        </tr>
+                        <tr>
+                            <th>Address:</th>
+                            <td>@(party.Address ?? "Not provided")</td>
+                        </tr>
+                        <tr>
+                            <th>Current Balance:</th>
+                            <td class="@(party.CurrentBalance >= 0 ? "text-success fw-bold h5" : "text-danger fw-bold h5")">
+                                ₨ @party.CurrentBalance.ToString("N0")
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Status:</th>
+                            <td>@(party.IsActive ? "<span class='badge bg-success'>Active</span>" : "<span class='badge bg-secondary'>Inactive</span>")</td>
+                        </tr>
+                        <tr>
+                            <th>Member Since:</th>
+                            <td>@party.CreatedAt.ToString("dd MMMM yyyy")</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow h-100">
+                <div class="card-header bg-success text-white">
+                    <i class="fas fa-chart-pie"></i> Balance Summary
+                </div>
+                <div class="card-body">
+                    @{
+                        var fabricTotal = fabrics?.Sum(f => f.Balance) ?? 0;
+                        var productionTotal = productions?.Sum(p => p.Balance) ?? 0;
+                        var senderTotal = senders?.Sum(s => s.Balance) ?? 0;
+                    }
+                    <div class="mb-3">
+                        <label>Fabric Balance (Supplier)</label>
+                        <div class="progress">
+                            <div class="progress-bar bg-info" style="width: @(fabricTotal > 0 ? 100 : 0)%">
+                                ₨ @fabricTotal.ToString("N0")
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label>Production Balance (Worker)</label>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" style="width: @(productionTotal > 0 ? 100 : 0)%">
+                                ₨ @productionTotal.ToString("N0")
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label>Sender Balance (Customer)</label>
+                        <div class="progress">
+                            <div class="progress-bar bg-danger" style="width: @(senderTotal > 0 ? 100 : 0)%">
+                                ₨ @senderTotal.ToString("N0")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Fabrics -->
+    @if (fabrics.Any())
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <i class="fas fa-cut"></i> Recent Fabric Transactions
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Variety</th>
+                                        <th>KG/Than</th>
+                                        <th>Amount</th>
+                                        <th>Balance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var fabric in fabrics.Take(5))
+                                    {
+                                        <tr>
+                                            <td>@fabric.Date.ToString("dd-MMM-yyyy")</td>
+                                            <td>@fabric.Variety</td>
+                                            <td>@(fabric.KG?.ToString() ?? fabric.Than?.ToString() ?? "-")</td>
+                                            <td>₨ @fabric.Amount.ToString("N0")</td>
+                                            <td class="@(fabric.Balance > 0 ? "text-danger" : "text-success")">
+                                                ₨ @fabric.Balance.ToString("N0")
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Recent Productions -->
+    @if (productions.Any())
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-success text-white">
+                        <i class="fas fa-tshirt"></i> Recent Production Transactions
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Module</th>
+                                        <th>Item</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var prod in productions.Take(5))
+                                    {
+                                        <tr>
+                                            <td>@prod.Date.ToString("dd-MMM-yyyy")</td>
+                                            <td>@prod.ModuleType @(!string.IsNullOrEmpty(prod.SubType) ? $"- {prod.SubType}" : "")</td>
+                                            <td>@(prod.ItemName ?? "-")</td>
+                                            <td>₨ @prod.Amount.ToString("N0")</td>
+                                            <td>
+                                                <span class="badge @(prod.Status == "Paid" ? "bg-success" : (prod.Status == "Partial" ? "bg-warning" : "bg-danger"))">
+                                                    @prod.Status
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

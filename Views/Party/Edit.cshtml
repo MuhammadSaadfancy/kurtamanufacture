@@ -1,0 +1,95 @@
+﻿@model FashionPro.Models.ViewModels.PartyVM
+
+@{
+    ViewData["Title"] = "Edit Party";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-edit"></i> Edit Party
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                        <input type="hidden" asp-for="PartyId" />
+                        <input type="hidden" asp-for="CurrentBalance" />
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PartyName" class="form-label">
+                                    <i class="fas fa-user"></i> Party Name <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="PartyName" class="form-control" />
+                                <span asp-validation-for="PartyName" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PartyType" class="form-label">
+                                    <i class="fas fa-tag"></i> Party Type <span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="PartyType" asp-items="Model.PartyTypes" class="form-select"></select>
+                                <span asp-validation-for="PartyType" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Phone" class="form-label">
+                                    <i class="fas fa-phone"></i> Phone Number
+                                </label>
+                                <input asp-for="Phone" class="form-control" />
+                                <span asp-validation-for="Phone" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Address" class="form-label">
+                                    <i class="fas fa-location-dot"></i> Address
+                                </label>
+                                <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+                                <span asp-validation-for="Address" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        @if (Model.CurrentBalance != 0)
+                        {
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> Current Balance:
+                                <strong>₨ @Model.CurrentBalance.ToString("N0")</strong>
+                                <small class="d-block">Balance cannot be edited directly. It updates automatically with transactions.</small>
+                            </div>
+                        }
+
+                        <div class="mb-3 form-check">
+                            <input asp-for="IsActive" class="form-check-input" />
+                            <label asp-for="IsActive" class="form-check-label">
+                                Active Party
+                            </label>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to List
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
